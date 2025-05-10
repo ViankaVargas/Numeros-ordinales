@@ -4,7 +4,9 @@ const preguntaElement = document.getElementById("pregunta");
 const respuestasElement = document.querySelectorAll("#respuestas button");
 const resultadoElement = document.getElementById("resultado");
 const puntosElement = document.getElementById("puntos");
+const reiniciarButton = document.getElementById("reiniciar");
 
+// AQUÍ VA EL ARRAY DE NÚMEROS ORDINALES (numerosOrdinales)
 const numerosOrdinales = [
  { numero: "1°", texto: "primero" },
  { numero: "2°", texto: "segundo" },
@@ -110,47 +112,67 @@ const numerosOrdinales = [
 
 let preguntas = [];
 for (let i = 0; i < 10; i++) {
- let numeroAleatorio;
- do {
- numeroAleatorio = Math.floor(Math.random() * numerosOrdinales.length);
- } while (preguntas.includes(numeroAleatorio));
- preguntas.push(numeroAleatorio);
+  let numeroAleatorio;
+  do {
+    numeroAleatorio = Math.floor(Math.random() * numerosOrdinales.length);
+  } while (preguntas.includes(numeroAleatorio));
+  preguntas.push(numeroAleatorio);
 }
 
 let preguntaActualIndex = 0;
 
 function generarPregunta() {
- const preguntaActual = numerosOrdinales[preguntas[preguntaActualIndex]];
- preguntaElement.textContent = `¿Cuál es el número ordinal "${preguntaActual.numero}"?`;
- const respuestas = [];
- for (let i = 0; i < 4; i++) {
- respuestas.push(numerosOrdinales[Math.floor(Math.random() * numerosOrdinales.length)].texto);
- }
- respuestas[Math.floor(Math.random() * 4)] = preguntaActual.texto;
- respuestasElement.forEach((button, index) => {
- button.textContent = respuestas[index];
- button.onclick = verificarRespuesta;
- });
+  const preguntaActual = numerosOrdinales[preguntas[preguntaActualIndex]];
+  preguntaElement.textContent = `¿Cuál es el número ordinal "${preguntaActual.numero}"?`;
+  const respuestas = [];
+  for (let i = 0; i < 4; i++) {
+    respuestas.push(numerosOrdinales[Math.floor(Math.random() * numerosOrdinales.length)].texto);
+  }
+  respuestas[Math.floor(Math.random() * 4)] = preguntaActual.texto;
+  respuestasElement.forEach((button, index) => {
+    button.textContent = respuestas[index];
+    button.onclick = verificarRespuesta;
+  });
 }
 
 function verificarRespuesta(event) {
- const respuestaSeleccionada = event.target.textContent;
- const preguntaActual = numerosOrdinales[preguntas[preguntaActualIndex]];
- if (respuestaSeleccionada === preguntaActual.texto) {
- puntos++;
- puntosElement.textContent = `Puntos: ${puntos}`;
- resultadoElement.textContent = "¡Correcto!";
- } else {
- resultadoElement.textContent = `Incorrecto. La respuesta correcta es ${preguntaActual.texto}.`;
- preguntasIncorrectas.push(preguntas[preguntaActualIndex]);
- }
- preguntaActualIndex++;
- if (preguntaActualIndex < preguntas.length) {
- generarPregunta();
- } else {
- preguntaElement.textContent = "¡Juego terminado!";
- respuestasElement.forEach(button => button.disabled = true);
- }
+  const respuestaSeleccionada = event.target.textContent;
+  const preguntaActual = numerosOrdinales[preguntas[preguntaActualIndex]];
+  if (respuestaSeleccionada === preguntaActual.texto) {
+    puntos++;
+    puntosElement.textContent = `Puntos: ${puntos}`;
+    resultadoElement.textContent = "¡Correcto!";
+  } else {
+    resultadoElement.textContent = `Incorrecto. La respuesta correcta es ${preguntaActual.texto}.`;
+    preguntasIncorrectas.push(preguntas[preguntaActualIndex]);
+  }
+  preguntaActualIndex++;
+  if (preguntaActualIndex < preguntas.length) {
+    generarPregunta();
+  } else {
+    preguntaElement.textContent = "¡Juego terminado!";
+    respuestasElement.forEach(button => button.disabled = true);
+    reiniciarButton.style.display = "block";
+  }
 }
+
+reiniciarButton.addEventListener("click", () => {
+  preguntasIncorrectas = [];
+  preguntas = [];
+  for (let i = 0; i < 10; i++) {
+    let numeroAleatorio;
+    do {
+      numeroAleatorio = Math.floor(Math.random() * numerosOrdinales.length);
+    } while (preguntas.includes(numeroAleatorio) || preguntasIncorrectas.includes(numeroAleatorio));
+    preguntas.push(numeroAleatorio);
+  }
+  preguntaActualIndex = 0;
+  puntos = 0;
+  puntosElement.textContent = `Puntos: ${puntos}`;
+  resultadoElement.textContent = "";
+  reiniciarButton.style.display = "none";
+  respuestasElement.forEach(button => button.disabled = false);
+  generarPregunta();
+});
 
 generarPregunta();
